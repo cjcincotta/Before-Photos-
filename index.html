@@ -70,6 +70,7 @@
 </head>
 <body>
 <div class="container">
+
   <div class="header">
     <div class="logo">
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -79,10 +80,12 @@
       <p>Document job site conditions on arrival</p>
     </div>
   </div>
+
   <div class="drive-badge">
     <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
     <span>Photos save directly to <strong>Google Drive</strong></span>
   </div>
+
   <div class="card">
     <div class="card-title">Job info</div>
     <div class="field">
@@ -113,6 +116,7 @@
       <textarea id="notes" placeholder="e.g. Cracked section on east side of driveway, pre-existing staining at NE corner…"></textarea>
     </div>
   </div>
+
   <div class="card">
     <div class="card-title">Before photos</div>
     <div class="photo-zone" onclick="document.getElementById('photoInput').click()">
@@ -124,28 +128,36 @@
     <div class="preview-grid" id="previewGrid"></div>
     <div class="photo-count" id="photoCount" style="display:none;"></div>
   </div>
+
   <button class="submit-btn" id="submitBtn" onclick="submitEntry()">
     ☁️ &nbsp;Save & upload to Drive
   </button>
+
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-label" id="progressLabel">Uploading…</div>
     <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
   </div>
+
   <div class="banner success" id="successBanner"></div>
   <div class="banner error" id="errorBanner"></div>
+
   <div class="log-section">
     <div class="log-header">
       <div class="log-header-title">Today's submissions <span class="count-pill" id="entryCount">0</span></div>
     </div>
     <div id="logContainer"><p class="empty-log">No submissions yet today.</p></div>
   </div>
+
 </div>
 <script>
 const API_KEY = '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';
 const FOLDER_ID = '1mJVXDrrSf1ztth0VhUmXniexx-fXvE3v';
+
 let photos = [];
 let entries = [];
+
 const photoInput = document.getElementById('photoInput');
+
 photoInput.addEventListener('change', (e) => {
   Array.from(e.target.files).forEach(file => {
     const reader = new FileReader();
@@ -157,6 +169,7 @@ photoInput.addEventListener('change', (e) => {
   });
   photoInput.value = '';
 });
+
 function renderPreviews() {
   const grid = document.getElementById('previewGrid');
   grid.innerHTML = '';
@@ -167,59 +180,93 @@ function renderPreviews() {
     grid.appendChild(wrap);
   });
   const countEl = document.getElementById('photoCount');
-  if (photos.length > 0) { countEl.style.display = 'block'; countEl.textContent = `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected`; }
-  else { countEl.style.display = 'none'; }
+  if (photos.length > 0) {
+    countEl.style.display = 'block';
+    countEl.textContent = `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected`;
+  } else {
+    countEl.style.display = 'none';
+  }
 }
-function removePhoto(i) { photos.splice(i, 1); renderPreviews(); }
+
+function removePhoto(i) {
+  photos.splice(i, 1);
+  renderPreviews();
+}
+
 function showBanner(type, msg) {
   const el = document.getElementById(type + 'Banner');
   el.textContent = (type === 'success' ? '✅ ' : '⚠️ ') + msg;
   el.style.display = 'flex';
   if (type === 'success') setTimeout(() => el.style.display = 'none', 6000);
 }
+
 function setProgress(pct, label) {
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressLabel').textContent = label;
 }
+
 async function callDrive(prompt) {
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }], mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }] })
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+      mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }]
+    })
   });
   const data = await resp.json();
   const tr = data.content && data.content.find(b => b.type === 'mcp_tool_result');
-  if (tr && tr.content && tr.content[0] && tr.content[0].text) { try { return JSON.parse(tr.content[0].text); } catch(e) { return null; } }
+  if (tr && tr.content && tr.content[0] && tr.content[0].text) {
+    try { return JSON.parse(tr.content[0].text); } catch(e) { return null; }
+  }
   return null;
 }
+
 async function submitEntry() {
   const tech = document.getElementById('techName').value.trim();
   const customer = document.getElementById('customerName').value.trim();
   const addr = document.getElementById('jobAddr').value.trim();
   const service = document.getElementById('serviceType').value;
   const notes = document.getElementById('notes').value.trim();
+
   document.getElementById('errorBanner').style.display = 'none';
   document.getElementById('successBanner').style.display = 'none';
-  if (!tech || !customer || !addr || !service) { showBanner('error', 'Please fill in technician name, customer name, address, and service type.'); return; }
+
+  if (!tech || !customer || !addr || !service) {
+    showBanner('error', 'Please fill in technician name, customer name, address, and service type.');
+    return;
+  }
+
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
+
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
   const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const safeCustomer = customer.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_').substring(0, 25);
   const safeAddr = addr.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_').substring(0, 30);
   const folderName = `${dateStr} – ${safeCustomer} – ${safeAddr}`;
+
   const progressWrap = document.getElementById('progressWrap');
   progressWrap.style.display = 'block';
   setProgress(5, 'Creating job folder…');
+
   let targetFolder = FOLDER_ID;
   try {
     const f = await callDrive(`Create a Google Drive folder titled "${folderName}" with parentId "${FOLDER_ID}". Use the create_file tool with mimeType application/vnd.google-apps.folder. Reply only with the created file JSON object.`);
     if (f && f.id) targetFolder = f.id;
   } catch(e) {}
+
   let done = 0;
   const total = photos.length;
   let driveLinks = [];
+
   for (let i = 0; i < photos.length; i++) {
     setProgress(Math.round(10 + ((i / Math.max(total, 1)) * 75)), `Uploading photo ${i+1} of ${total}…`);
     const p = photos[i];
@@ -232,16 +279,33 @@ async function submitEntry() {
     } catch(e) {}
     done++;
   }
+
   setProgress(90, 'Saving job summary…');
-  const summary = `VIEWCREW – JOB DOCUMENTATION (BEFORE PHOTOS)\n==============================================\nDate:        ${dateStr}\nTime:        ${timeStr}\nTechnician:  ${tech}\nCustomer:    ${customer}\nAddress:     ${addr}\nService:     ${service}\nPhotos:      ${photos.length}\n${notes ? '\nSite notes:\n' + notes : ''}\n${driveLinks.length > 0 ? '\nPhoto files:\n' + driveLinks.join('\n') : ''}\n==============================================`;
+
+  const summary = `VIEWCREW – JOB DOCUMENTATION (BEFORE PHOTOS)
+==============================================
+Date:        ${dateStr}
+Time:        ${timeStr}
+Technician:  ${tech}
+Customer:    ${customer}
+Address:     ${addr}
+Service:     ${service}
+Photos:      ${photos.length}
+${notes ? '\nSite notes:\n' + notes : ''}
+${driveLinks.length > 0 ? '\nPhoto files:\n' + driveLinks.join('\n') : ''}
+==============================================`;
+
   let summaryLink = null;
   try {
     const sr = await callDrive(`Upload a text file to Google Drive using the create_file tool with: title="Job Summary – ${dateStr}.txt", parentId="${targetFolder}", textContent=${JSON.stringify(summary)}, contentMimeType="text/plain", disableConversionToGoogleType=true. Reply only with the created file JSON.`);
     if (sr && sr.viewUrl) summaryLink = sr.viewUrl;
   } catch(e) {}
+
   setProgress(100, 'Done!');
   setTimeout(() => { progressWrap.style.display = 'none'; }, 1500);
+
   entries.unshift({ tech, customer, addr, service, notes, thumbs: photos.map(p => p.dataUrl), time: `${dateStr} ${timeStr}`, photoCount: photos.length, summaryLink });
+
   document.getElementById('techName').value = '';
   document.getElementById('customerName').value = '';
   document.getElementById('jobAddr').value = '';
@@ -249,16 +313,33 @@ async function submitEntry() {
   document.getElementById('notes').value = '';
   photos = [];
   renderPreviews();
+
   showBanner('success', `${done} photo${done !== 1 ? 's' : ''} uploaded to Google Drive successfully.`);
   btn.disabled = false;
   renderLog();
 }
+
 function renderLog() {
   const container = document.getElementById('logContainer');
   document.getElementById('entryCount').textContent = entries.length;
-  if (entries.length === 0) { container.innerHTML = '<p class="empty-log">No submissions yet today.</p>'; return; }
-  container.innerHTML = entries.map(e => `<div class="log-entry"><div class="log-entry-top"><div class="log-entry-addr">${e.customer} – ${e.addr}</div><div class="log-entry-time">${e.time}</div></div><div class="log-entry-meta">${e.service} &middot; ${e.tech} &middot; ${e.photoCount} photo${e.photoCount !== 1 ? 's' : ''}</div>${e.thumbs.length > 0 ? `<div class="log-entry-thumbs">${e.thumbs.map((t,i) => `<img src="${t}" alt="Photo ${i+1}" />`).join('')}</div>` : ''}${e.notes ? `<div class="log-entry-note">${e.notes}</div>` : ''}${e.summaryLink ? `<a class="log-entry-link" href="${e.summaryLink}" target="_blank">📂 View in Google Drive</a>` : ''}</div>`).join('');
+  if (entries.length === 0) {
+    container.innerHTML = '<p class="empty-log">No submissions yet today.</p>';
+    return;
+  }
+  container.innerHTML = entries.map(e => `
+    <div class="log-entry">
+      <div class="log-entry-top">
+        <div class="log-entry-addr">${e.customer} – ${e.addr}</div>
+        <div class="log-entry-time">${e.time}</div>
+      </div>
+      <div class="log-entry-meta">${e.service} &middot; ${e.tech} &middot; ${e.photoCount} photo${e.photoCount !== 1 ? 's' : ''}</div>
+      ${e.thumbs.length > 0 ? `<div class="log-entry-thumbs">${e.thumbs.map((t,i) => `<img src="${t}" alt="Photo ${i+1}" />`).join('')}</div>` : ''}
+      ${e.notes ? `<div class="log-entry-note">${e.notes}</div>` : ''}
+      ${e.summaryLink ? `<a class="log-entry-link" href="${e.summaryLink}" target="_blank">📂 View in Google Drive</a>` : ''}
+    </div>
+  `).join('');
 }
+
 renderLog();
 </script>
 </body>
