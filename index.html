@@ -1,26 +1,265 @@
-
-ViewCrew – Before Photo Log
-Document job site conditions on arrival
-
-Photos save directly to Google Drive
-JOB INFO
-Technician name
-Customer name
-Job address
-Service type
-        — select service —
-        Paver Cleaning, Sanding & Sealing
-        Paver Soft Wash & Sealing
-        Concrete Cleaning & Sealing
-        Stamped Concrete Cleaning & Sealing
-        Exterior Washing Services
-      
-Site notes (damage, hazards, pre-existing conditions)
-BEFORE PHOTOS
-📷
-Tap to take or upload photos
-Take multiple — all upload to Drive automatically
-☁️  Save & upload to Drive
-Today's submissions
-0
-No submissions yet today.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>ViewCrew – Before Photo Log</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+  .container { max-width: 480px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
+  .logo { width: 42px; height: 42px; background: #1a6ef5; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .header-text h1 { font-size: 17px; font-weight: 600; color: #1a1a1a; }
+  .header-text p { font-size: 12px; color: #888; margin-top: 2px; }
+  .drive-badge { display: flex; align-items: center; gap: 7px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 8px 12px; margin-bottom: 1.25rem; }
+  .drive-badge svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .drive-badge span { font-size: 12px; color: #2e7d32; }
+  .card { background: #fff; border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .card-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1rem; }
+  .field { margin-bottom: 1rem; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
+  input[type="text"], select, textarea {
+    width: 100%; padding: 11px 13px; font-size: 15px; font-family: inherit;
+    border: 1.5px solid #e0e0e0; border-radius: 9px; background: #fafafa;
+    color: #1a1a1a; outline: none; transition: border-color 0.15s, background 0.15s;
+    -webkit-appearance: none; appearance: none;
+  }
+  input[type="text"]:focus, select:focus, textarea:focus { border-color: #1a6ef5; background: #fff; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .photo-zone { border: 2px dashed #d0d0d0; border-radius: 12px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; background: #fafafa; transition: border-color 0.15s, background 0.15s; }
+  .photo-zone:hover, .photo-zone:active { border-color: #1a6ef5; background: #f0f5ff; }
+  .photo-zone .icon { font-size: 36px; margin-bottom: 8px; }
+  .photo-zone .zone-label { font-size: 15px; font-weight: 500; color: #444; }
+  .photo-zone .sublabel { font-size: 12px; color: #999; margin-top: 4px; }
+  #photoInput { display: none; }
+  .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .thumb { position: relative; aspect-ratio: 1; border-radius: 9px; overflow: hidden; border: 1px solid #e0e0e0; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-remove { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; width: 22px; height: 22px; color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+  .photo-count { font-size: 12px; color: #888; margin-top: 8px; text-align: center; }
+  .submit-btn { width: 100%; padding: 15px; background: #1a6ef5; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1.25rem; transition: opacity 0.15s, transform 0.1s; }
+  .submit-btn:hover { opacity: 0.92; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .progress-wrap { margin-top: 1rem; display: none; }
+  .progress-label { font-size: 13px; color: #555; margin-bottom: 7px; text-align: center; }
+  .progress-bg { height: 7px; background: #e8e8e8; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1a6ef5; border-radius: 99px; transition: width 0.35s ease; width: 0%; }
+  .banner { border-radius: 10px; padding: 13px 16px; font-size: 14px; margin-top: 1rem; display: none; align-items: center; gap: 9px; }
+  .banner.success { background: #e8f5e9; border: 1px solid #c8e6c9; color: #2e7d32; }
+  .banner.error { background: #ffebee; border: 1px solid #ffcdd2; color: #c62828; }
+  .log-section { margin-top: 2rem; }
+  .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .log-header-title { font-size: 14px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 8px; }
+  .count-pill { background: #e8f0fe; color: #1a6ef5; font-size: 11px; font-weight: 600; border-radius: 99px; padding: 2px 9px; }
+  .log-entry { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .log-entry-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .log-entry-addr { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .log-entry-time { font-size: 11px; color: #aaa; white-space: nowrap; }
+  .log-entry-meta { font-size: 12px; color: #888; margin-top: 3px; }
+  .log-entry-thumbs { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  .log-entry-thumbs img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #e0e0e0; }
+  .log-entry-note { font-size: 12px; color: #777; margin-top: 6px; font-style: italic; border-left: 2px solid #e0e0e0; padding-left: 8px; }
+  .log-entry-link { font-size: 12px; color: #1a6ef5; margin-top: 7px; display: flex; align-items: center; gap: 4px; text-decoration: none; }
+  .empty-log { text-align: center; color: #bbb; font-size: 13px; padding: 1.5rem 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>ViewCrew – Before Photo Log</h1>
+      <p>Document job site conditions on arrival</p>
+    </div>
+  </div>
+  <div class="drive-badge">
+    <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+    <span>Photos save directly to <strong>Google Drive</strong></span>
+  </div>
+  <div class="card">
+    <div class="card-title">Job info</div>
+    <div class="field">
+      <label for="techName">Technician name</label>
+      <input type="text" id="techName" placeholder="e.g. Mike T." autocomplete="name" />
+    </div>
+    <div class="field">
+      <label for="customerName">Customer name</label>
+      <input type="text" id="customerName" placeholder="e.g. John Smith" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="jobAddr">Job address</label>
+      <input type="text" id="jobAddr" placeholder="e.g. 14 Oak Street, Andover" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="serviceType">Service type</label>
+      <select id="serviceType">
+        <option value="">— select service —</option>
+        <option>Paver Cleaning, Sanding & Sealing</option>
+        <option>Paver Soft Wash & Sealing</option>
+        <option>Concrete Cleaning & Sealing</option>
+        <option>Stamped Concrete Cleaning & Sealing</option>
+        <option>Exterior Washing Services</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="notes">Site notes (damage, hazards, pre-existing conditions)</label>
+      <textarea id="notes" placeholder="e.g. Cracked section on east side of driveway, pre-existing staining at NE corner…"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Before photos</div>
+    <div class="photo-zone" onclick="document.getElementById('photoInput').click()">
+      <div class="icon">📷</div>
+      <div class="zone-label">Tap to take or upload photos</div>
+      <div class="sublabel">Take multiple — all upload to Drive automatically</div>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" multiple capture="environment" />
+    <div class="preview-grid" id="previewGrid"></div>
+    <div class="photo-count" id="photoCount" style="display:none;"></div>
+  </div>
+  <button class="submit-btn" id="submitBtn" onclick="submitEntry()">
+    ☁️ &nbsp;Save & upload to Drive
+  </button>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label" id="progressLabel">Uploading…</div>
+    <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="banner success" id="successBanner"></div>
+  <div class="banner error" id="errorBanner"></div>
+  <div class="log-section">
+    <div class="log-header">
+      <div class="log-header-title">Today's submissions <span class="count-pill" id="entryCount">0</span></div>
+    </div>
+    <div id="logContainer"><p class="empty-log">No submissions yet today.</p></div>
+  </div>
+</div>
+<script>
+const API_KEY = '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';
+const FOLDER_ID = '1mJVXDrrSf1ztth0VhUmXniexx-fXvE3v';
+let photos = [];
+let entries = [];
+const photoInput = document.getElementById('photoInput');
+photoInput.addEventListener('change', (e) => {
+  Array.from(e.target.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      photos.push({ dataUrl: ev.target.result, name: file.name, type: file.type });
+      renderPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+  photoInput.value = '';
+});
+function renderPreviews() {
+  const grid = document.getElementById('previewGrid');
+  grid.innerHTML = '';
+  photos.forEach((p, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb';
+    wrap.innerHTML = `<img src="${p.dataUrl}" alt="Photo ${i+1}" /><button class="thumb-remove" onclick="removePhoto(${i})">×</button>`;
+    grid.appendChild(wrap);
+  });
+  const countEl = document.getElementById('photoCount');
+  if (photos.length > 0) { countEl.style.display = 'block'; countEl.textContent = `${photos.length} photo${photos.length !== 1 ? 's' : ''} selected`; }
+  else { countEl.style.display = 'none'; }
+}
+function removePhoto(i) { photos.splice(i, 1); renderPreviews(); }
+function showBanner(type, msg) {
+  const el = document.getElementById(type + 'Banner');
+  el.textContent = (type === 'success' ? '✅ ' : '⚠️ ') + msg;
+  el.style.display = 'flex';
+  if (type === 'success') setTimeout(() => el.style.display = 'none', 6000);
+}
+function setProgress(pct, label) {
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = label;
+}
+async function callDrive(prompt) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }], mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }] })
+  });
+  const data = await resp.json();
+  const tr = data.content && data.content.find(b => b.type === 'mcp_tool_result');
+  if (tr && tr.content && tr.content[0] && tr.content[0].text) { try { return JSON.parse(tr.content[0].text); } catch(e) { return null; } }
+  return null;
+}
+async function submitEntry() {
+  const tech = document.getElementById('techName').value.trim();
+  const customer = document.getElementById('customerName').value.trim();
+  const addr = document.getElementById('jobAddr').value.trim();
+  const service = document.getElementById('serviceType').value;
+  const notes = document.getElementById('notes').value.trim();
+  document.getElementById('errorBanner').style.display = 'none';
+  document.getElementById('successBanner').style.display = 'none';
+  if (!tech || !customer || !addr || !service) { showBanner('error', 'Please fill in technician name, customer name, address, and service type.'); return; }
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const safeCustomer = customer.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_').substring(0, 25);
+  const safeAddr = addr.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_').substring(0, 30);
+  const folderName = `${dateStr} – ${safeCustomer} – ${safeAddr}`;
+  const progressWrap = document.getElementById('progressWrap');
+  progressWrap.style.display = 'block';
+  setProgress(5, 'Creating job folder…');
+  let targetFolder = FOLDER_ID;
+  try {
+    const f = await callDrive(`Create a Google Drive folder titled "${folderName}" with parentId "${FOLDER_ID}". Use the create_file tool with mimeType application/vnd.google-apps.folder. Reply only with the created file JSON object.`);
+    if (f && f.id) targetFolder = f.id;
+  } catch(e) {}
+  let done = 0;
+  const total = photos.length;
+  let driveLinks = [];
+  for (let i = 0; i < photos.length; i++) {
+    setProgress(Math.round(10 + ((i / Math.max(total, 1)) * 75)), `Uploading photo ${i+1} of ${total}…`);
+    const p = photos[i];
+    const base64 = p.dataUrl.split(',')[1];
+    const ext = (p.type.split('/')[1] || 'jpg').split('+')[0];
+    const fname = `photo_${String(i+1).padStart(2,'0')}.${ext}`;
+    try {
+      const result = await callDrive(`Upload a file to Google Drive using the create_file tool with these exact parameters: title="${fname}", parentId="${targetFolder}", base64Content="${base64}", contentMimeType="${p.type}", disableConversionToGoogleType=true. Reply only with the created file JSON.`);
+      if (result && result.viewUrl) driveLinks.push(result.viewUrl);
+    } catch(e) {}
+    done++;
+  }
+  setProgress(90, 'Saving job summary…');
+  const summary = `VIEWCREW – JOB DOCUMENTATION (BEFORE PHOTOS)\n==============================================\nDate:        ${dateStr}\nTime:        ${timeStr}\nTechnician:  ${tech}\nCustomer:    ${customer}\nAddress:     ${addr}\nService:     ${service}\nPhotos:      ${photos.length}\n${notes ? '\nSite notes:\n' + notes : ''}\n${driveLinks.length > 0 ? '\nPhoto files:\n' + driveLinks.join('\n') : ''}\n==============================================`;
+  let summaryLink = null;
+  try {
+    const sr = await callDrive(`Upload a text file to Google Drive using the create_file tool with: title="Job Summary – ${dateStr}.txt", parentId="${targetFolder}", textContent=${JSON.stringify(summary)}, contentMimeType="text/plain", disableConversionToGoogleType=true. Reply only with the created file JSON.`);
+    if (sr && sr.viewUrl) summaryLink = sr.viewUrl;
+  } catch(e) {}
+  setProgress(100, 'Done!');
+  setTimeout(() => { progressWrap.style.display = 'none'; }, 1500);
+  entries.unshift({ tech, customer, addr, service, notes, thumbs: photos.map(p => p.dataUrl), time: `${dateStr} ${timeStr}`, photoCount: photos.length, summaryLink });
+  document.getElementById('techName').value = '';
+  document.getElementById('customerName').value = '';
+  document.getElementById('jobAddr').value = '';
+  document.getElementById('serviceType').value = '';
+  document.getElementById('notes').value = '';
+  photos = [];
+  renderPreviews();
+  showBanner('success', `${done} photo${done !== 1 ? 's' : ''} uploaded to Google Drive successfully.`);
+  btn.disabled = false;
+  renderLog();
+}
+function renderLog() {
+  const container = document.getElementById('logContainer');
+  document.getElementById('entryCount').textContent = entries.length;
+  if (entries.length === 0) { container.innerHTML = '<p class="empty-log">No submissions yet today.</p>'; return; }
+  container.innerHTML = entries.map(e => `<div class="log-entry"><div class="log-entry-top"><div class="log-entry-addr">${e.customer} – ${e.addr}</div><div class="log-entry-time">${e.time}</div></div><div class="log-entry-meta">${e.service} &middot; ${e.tech} &middot; ${e.photoCount} photo${e.photoCount !== 1 ? 's' : ''}</div>${e.thumbs.length > 0 ? `<div class="log-entry-thumbs">${e.thumbs.map((t,i) => `<img src="${t}" alt="Photo ${i+1}" />`).join('')}</div>` : ''}${e.notes ? `<div class="log-entry-note">${e.notes}</div>` : ''}${e.summaryLink ? `<a class="log-entry-link" href="${e.summaryLink}" target="_blank">📂 View in Google Drive</a>` : ''}</div>`).join('');
+}
+renderLog();
+</script>
+</body>
+</html>
